@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Relay Monitor & Control</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      padding: 30px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .relay-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      max-width: 520px;
+      margin: auto;
+    }
+
+    .relay {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      transition: 0.3s;
+    }
+
+    .on { background: #16a34a; }
+    .off { background: #dc2626; }
+
+    .status {
+      font-weight: bold;
+      margin: 10px 0;
+      font-size: 18px;
+    }
+
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn-on { background: #22c55e; }
+    .btn-off { background: #ef4444; }
+
+    .time {
+      text-align: center;
+      margin-top: 30px;
+      color: #cbd5f5;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>📡 Relay Server Monitor & Control</h1>
+
+<div class="relay-container">
+  <div id="relay1" class="relay">
+    Relay 1
+    <div class="status">---</div>
+    <button class="btn-on" onclick="setRelay(1, true)">ON</button>
+    <button class="btn-off" onclick="setRelay(1, false)">OFF</button>
+  </div>
+
+  <div id="relay2" class="relay">
+    Relay 2
+    <div class="status">---</div>
+    <button class="btn-on" onclick="setRelay(2, true)">ON</button>
+    <button class="btn-off" onclick="setRelay(2, false)">OFF</button>
+  </div>
+
+  <div id="relay3" class="relay">
+    Relay 3
+    <div class="status">---</div>
+    <button class="btn-on" onclick="setRelay(3, true)">ON</button>
+    <button class="btn-off" onclick="setRelay(3, false)">OFF</button>
+  </div>
+
+  <div id="relay4" class="relay">
+    Relay 4
+    <div class="status">---</div>
+    <button class="btn-on" onclick="setRelay(4, true)">ON</button>
+    <button class="btn-off" onclick="setRelay(4, false)">OFF</button>
+  </div>
+</div>
+
+<div class="time" id="time">--</div>
+
+<script>
+  const API_URL = "https://sever-iot.onrender.com/api/relay";
+  let currentRelay = {};
+  let isUpdating = false;
+
+  async function fetchRelay() {
+    if (isUpdating) return;
+
+    const res = await fetch(API_URL);
+    currentRelay = await res.json();
+
+    updateUI(1, currentRelay.relay1);
+    updateUI(2, currentRelay.relay2);
+    updateUI(3, currentRelay.relay3);
+    updateUI(4, currentRelay.relay4);
+
+    document.getElementById("time").innerText =
+      "Cập nhật lúc: " + new Date().toLocaleTimeString();
+  }
+
+  function updateUI(id, state) {
+    const el = document.getElementById("relay" + id);
+    const status = el.querySelector(".status");
+
+    el.classList.toggle("on", state);
+    el.classList.toggle("off", !state);
+    status.innerText = state ? "ON" : "OFF";
+  }
+
+  async function setRelay(id, state) {
+    isUpdating = true;
+
+    // cập nhật UI trước
+    updateUI(id, state);
+
+    await fetch(`${API_URL}/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ state }),
+    });
+
+    setTimeout(() => {
+      isUpdating = false;
+      fetchRelay();
+    }, 500);
+  }
+
+  fetchRelay();
+  setInterval(fetchRelay, 3000);
+</script>
+
+
+</body>
+</html>
