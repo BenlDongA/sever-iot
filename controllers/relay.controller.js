@@ -14,10 +14,23 @@ exports.getRelay = async (req, res) => {
 };
 
 exports.updateRelay = async (req, res) => {
+  const { id } = req.params;       // 1,2,3,4
+  const { state } = req.body;      // true / false
+
+  if (!["1", "2", "3", "4"].includes(id)) {
+    return res.status(400).json({ message: "Relay id không hợp lệ" });
+  }
+
+  const field = `relay${id}`;
+
   const relay = await Relay.findOneAndUpdate(
     {},
-    { ...req.body, updatedAt: Date.now() },
+    {
+      [field]: state,
+      updatedAt: Date.now()
+    },
     { new: true, upsert: true }
   );
-  res.json(relay);
+
+  res.json(relay); // 🔥 RẤT QUAN TRỌNG
 };
