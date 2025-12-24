@@ -32,8 +32,10 @@ exports.createSensor = async (req, res) => {
 };
 
 // Lấy latest
+
+// Lấy latest sensor chính xác
 exports.getLatestSensor = async (req, res) => {
-  const data = await Sensor.findOne().sort({ createdAt: -1 });
+  const data = await Sensor.findOne().sort({ updatedAt: -1 });
   res.json(data);
 };
 
