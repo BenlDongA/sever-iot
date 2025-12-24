@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const controller = require("../controllers/notification.controller");
 
-// Lấy danh sách thông báo
-router.get("/", controller.getAllNotifications);
+router.post("/", controller.createNotification);
+router.get("/", controller.getNotifications);
 
 module.exports = router;
