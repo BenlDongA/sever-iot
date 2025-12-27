@@ -3,6 +3,9 @@ const Notification = require("../models/Notification");
 const SensorHistory = require("../models/SensorHistory");
 const socket = require("../socket");
 
+// ======================
+// CREATE SENSOR (ESP32 POST)
+// ======================
 exports.createSensor = async (req, res) => {
   try {
     const { temperature, humidity, mq2, soil } = req.body;
@@ -50,6 +53,35 @@ exports.createSensor = async (req, res) => {
     }
 
     res.status(201).json(sensor);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// ======================
+// GET LATEST SENSOR
+// ======================
+exports.getLatestSensor = async (req, res) => {
+  try {
+    const data = await Sensor.findOne().sort({ updatedAt: -1 });
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// ======================
+// GET SENSOR HISTORY (FOR CHART)
+// ======================
+exports.getSensorHistory = async (req, res) => {
+  try {
+    const limit = Number(req.query.limit || 50);
+
+    const data = await SensorHistory.find()
+      .sort({ createdAt: -1 })
+      .limit(limit);
+
+    res.json(data.reverse()); // cũ → mới
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
