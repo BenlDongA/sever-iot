@@ -1,5 +1,5 @@
 const Relay = require("../models/Relay");
-const socket = require("../socket"); // 🔥 THÊM DÒNG NÀY
+const socket = require("../socket");
 
 exports.getRelay = async (req, res) => {
   let relay = await Relay.findOne();
